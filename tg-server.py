@@ -31,10 +31,11 @@ def set_searching_type(call):
         bot.send_message(chat_id=call.message.chat.id, text="Search by ...", reply_markup=keyboard)
 
     elif call.data == 'Title':
-        flags.title= True
-        bot.send_message(chat_id=call.message.chat.id, text="Input hackathon title")
+        flags.title = True
+        bot.send_message(chat_id=call.message.chat.id, text="Input title of hackathon:")
     elif call.data == 'Location':
         flags.location = True
+        bot.send_message(chat_id=call.message.chat.id, text="Input location of hackathon:")
     elif call.data == 'Type':
         flags.type = True
 
@@ -43,9 +44,31 @@ def set_searching_type(call):
 def message_handler(m):
     if flags.title:
         res = dbtools.find_hackathons_by_title(m.text)
-
-        bot.send_message(m.chat.id, helpers.form_message(res))
+        if res.__len__() != 0:
+            bot.send_message(m.chat.id, helpers.form_message(res))
+            handle_start_help(m)
+        else:
+            bot.send_message(m.chat.id, text="I did not find the hackathons according to the specified parameters")
         flags.title = False
+    elif flags.location:
+        res = dbtools.find_hackathon_by_location(m.text)
+        if res.__len__() != 0:
+            if res.__len__() > 5:
+                i = 0
+                t = []
+                while i < res.__len__():
+                    t.append(res[i])
+                    if i % 4 == 0:
+                        bot.send_message(m.chat.id, helpers.form_message(t))
+                        t = []
+                    i += 1
+            else:
+                bot.send_message(m.chat.id, helpers.form_message(res))
+            handle_start_help(m)
+        else:
+            bot.send_message(m.chat.id, text="I did not find the hackathons according to the specified parameters")
+    else:
+        bot.send_message(m.chat.id, text="I do not understand you")
 
 
 bot.polling(none_stop=True, interval=0)
