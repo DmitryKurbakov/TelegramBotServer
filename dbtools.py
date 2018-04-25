@@ -18,7 +18,7 @@ def find_hackathons_by_title(text):
     cursor = sources.find({})
     for doc in cursor:
         temp = doc.get("title")
-        if match.match(temp, re.IGNORECASE):
+        if temp.lower() == text.lower():
             res.append(doc)
 
     return res
