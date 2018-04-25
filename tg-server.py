@@ -45,7 +45,17 @@ def message_handler(m):
     if flags.title:
         res = dbtools.find_hackathons_by_title(m.text)
         if res.__len__() != 0:
-            bot.send_message(m.chat.id, helpers.form_message(res))
+            if res.__len__() > 5:
+                i = 0
+                t = []
+                while i < res.__len__():
+                    t.append(res[i])
+                    if i % 4 == 0:
+                        bot.send_message(m.chat.id, helpers.form_message(t))
+                        t = []
+                    i += 1
+            else:
+                bot.send_message(m.chat.id, helpers.form_message(res))
             handle_start_help(m)
         else:
             bot.send_message(m.chat.id, text="I did not find the hackathons according to the specified parameters")
