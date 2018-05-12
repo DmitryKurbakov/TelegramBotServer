@@ -1,46 +1,65 @@
 from mongoengine import *
 from pymongo import MongoClient
+import pymongo
 import re
 import api
 import googlemaps
 import helpers
+from sshtunnel import SSHTunnelForwarder
+from datetime import datetime
 
-def find_hackathons_by_title(text):
-    client = MongoClient()
+server = SSHTunnelForwarder(
+    api.MONGO_HOST,
+    ssh_username=api.MONGO_USER,
+    ssh_password=api.MONGO_PASS,
+    remote_bind_address=('localhost', 27017)
+)
 
-    db = client.HackathonAggregator
+server.start()
+
+
+def get_hackathon_types():
+    client = pymongo.MongoClient('localhost', server.local_bind_port)  # server.local_bind_port is assigned local port
+    db = client[api.MONGO_DB]
+    db_types = db.types
+
+    types = []
+
+    doc = db_types.find({})
+
+    for it in doc:
+        #print("Types from database: " + str(it.keys()))
+        types = list(it.keys())
+        types.remove('_id')
+
+    return types
+
+
+def get_hackathons_by_relevance(relevance):
+    client = pymongo.MongoClient('localhost', server.local_bind_port)  # server.local_bind_port is assigned local port
+    db = client[api.MONGO_DB]
     sources = db.source
-
-    match = re.compile(text)
 
     res = []
 
     cursor = sources.find({})
+
     for doc in cursor:
-        temp = doc.get("title")
-        if temp.lower() == text.lower() or text.lower() in temp.lower():
+        if relevance == 2:
             res.append(doc)
-
-    return res
-
-
-def find_hackathon_by_location(text):
-    client = MongoClient()
-
-    db = client.HackathonAggregator
-    sources = db.source
-
-    res = []
-    user_geocode = helpers.get_geocode(text)
-    cursor = sources.find({})
-    for doc in cursor:
-
-        try:
-            temp = doc.get("geocode")
-            data_point = (temp[0]['geometry']['location']['lat'], temp[0]['geometry']['location']['lng'])
-            if (temp != "" and temp != 1.0) and helpers.is_point_near(user_geocode, data_point):
-                res.append(doc)
-        except:
-            continue
+        else:
+            temp_str = doc.get('time').split('-')
+            if len(temp_str) < 3:
+                continue
+            start_date_str = '{} {} {}'.format(temp_str[0], temp_str[1], temp_str[2])
+            start_date = datetime.strptime(start_date_str, '%Y %m %d')
+            today_date = datetime.now()
+            if relevance == 0:
+                if start_date > today_date:
+                    res.append(doc)
+                    continue
+            elif relevance == 1:
+                if start_date <= today_date:
+                    res.append(doc)
 
     return res
