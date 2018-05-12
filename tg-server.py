@@ -9,10 +9,20 @@ from flags import Flags
 import helpers
 import api
 import time
+from datetime import datetime
 
 bot = telebot.TeleBot(api.tkey)
 
 flags = Flags()
+
+
+def every_day(message):
+    result = dbtools.get_hackathons_in_two_days()
+    if len(result) > 0:
+        output_message_after_search_process(result, message.chat.id, message)
+    else:
+        bot.send_message(message.chat.id, text="in 2 days hackathons will not be held =(")
+    time.sleep(3)
 
 
 # Обработчик команд '/start' и '/help'.
@@ -22,6 +32,11 @@ def handle_start_help(message):
     keyboard.add(*[types.InlineKeyboardButton(text=relevance, callback_data=relevance) for relevance in
                    ['Upcoming Hackathons', 'Past Hackathons', 'All Hackathons']])
     bot.send_message(message.chat.id, 'Please choose the list you are interested in:', reply_markup=keyboard)
+
+    while True:
+        now = datetime.now()
+        if now.hour == 20 and now.minute == 00 and now.second == 0:
+            every_day(message)
 
 
 def output_message_after_search_process(res, chat, m):

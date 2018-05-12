@@ -1,10 +1,6 @@
-from mongoengine import *
-from pymongo import MongoClient
 import pymongo
 import re
 import api
-import googlemaps
-import helpers
 from sshtunnel import SSHTunnelForwarder
 from datetime import datetime
 
@@ -61,5 +57,28 @@ def get_hackathons_by_relevance(relevance):
             elif relevance == 1:
                 if start_date <= today_date:
                     res.append(doc)
+    return res
 
+
+def get_hackathons_in_two_days():
+    client = pymongo.MongoClient('localhost', server.local_bind_port)  # server.local_bind_port is assigned local port
+    db = client[api.MONGO_DB]
+    sources = db.source
+
+    res = []
+
+    cursor = sources.find({})
+
+    for doc in cursor:
+        temp_str = doc.get('time').split('-')
+        if len(temp_str) < 3:
+            continue
+        start_date_str = '{} {} {}'.format(temp_str[0], temp_str[1], temp_str[2])
+        start_date = datetime.strptime(start_date_str, '%Y %m %d')
+        today_date = datetime.now()
+
+        if start_date.day - 2 == today_date.day\
+                and start_date.month == today_date.month\
+                and start_date.year == today_date.year:
+            res.append(doc)
     return res
