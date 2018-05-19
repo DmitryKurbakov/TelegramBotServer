@@ -60,7 +60,7 @@ def get_hackathons_by_relevance(relevance):
     return res
 
 
-def get_hackathons_in_two_days():
+def get_hackathons_in_week():
     client = pymongo.MongoClient('localhost', server.local_bind_port)  # server.local_bind_port is assigned local port
     db = client[api.MONGO_DB]
     sources = db.source
@@ -77,7 +77,7 @@ def get_hackathons_in_two_days():
         start_date = datetime.strptime(start_date_str, '%Y %m %d')
         today_date = datetime.now()
 
-        if start_date.day - 2 == today_date.day\
+        if start_date.day - 7 == today_date.day\
                 and start_date.month == today_date.month\
                 and start_date.year == today_date.year:
             res.append(doc)

@@ -17,7 +17,7 @@ flags = Flags()
 
 
 def every_day(message):
-    result = dbtools.get_hackathons_in_two_days()
+    result = dbtools.get_hackathons_in_week()
     if len(result) > 0:
         output_message_after_search_process(result, message.chat.id, message)
     else:
