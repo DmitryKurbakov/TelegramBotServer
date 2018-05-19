@@ -21,7 +21,7 @@ def every_day(message):
     if len(result) > 0:
         output_message_after_search_process(result, message.chat.id, message)
     else:
-        bot.send_message(message.chat.id, text="in 2 days hackathons will not be held =(")
+        bot.send_message(message.chat.id, text="in week hackathons will not be held =(")
     time.sleep(3)
 
 
