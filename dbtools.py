@@ -1,22 +1,10 @@
 import pymongo
-import re
-import api
-from sshtunnel import SSHTunnelForwarder
 from datetime import datetime
-
-server = SSHTunnelForwarder(
-    api.MONGO_HOST,
-    ssh_username=api.MONGO_USER,
-    ssh_password=api.MONGO_PASS,
-    remote_bind_address=('localhost', 27017)
-)
-
-server.start()
 
 
 def get_hackathon_types():
-    client = pymongo.MongoClient('localhost', server.local_bind_port)  # server.local_bind_port is assigned local port
-    db = client[api.MONGO_DB]
+    client = pymongo.MongoClient()  # server.local_bind_port is assigned local port
+    db = client.HackathonAggregator
     db_types = db.types
 
     types = []
@@ -32,8 +20,8 @@ def get_hackathon_types():
 
 
 def get_hackathons_by_relevance(relevance):
-    client = pymongo.MongoClient('localhost', server.local_bind_port)  # server.local_bind_port is assigned local port
-    db = client[api.MONGO_DB]
+    client = pymongo.MongoClient()  # server.local_bind_port is assigned local port
+    db = client.HackathonAggregator
     sources = db.source
 
     res = []
@@ -61,8 +49,8 @@ def get_hackathons_by_relevance(relevance):
 
 
 def get_hackathons_in_week():
-    client = pymongo.MongoClient('localhost', server.local_bind_port)  # server.local_bind_port is assigned local port
-    db = client[api.MONGO_DB]
+    client = pymongo.MongoClient()  # server.local_bind_port is assigned local port
+    db = client.HackathonAggregator
     sources = db.source
 
     res = []
