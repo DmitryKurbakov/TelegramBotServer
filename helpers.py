@@ -44,22 +44,37 @@ def find_hackathons_by_title(text, docs):
 
 
 def find_hackathons_by_location(text, docs):
-
+    res = []
     if len(docs) > 0:
-        res = []
         user_geocode = get_geocode(text)
 
         for doc in docs:
             try:
                 temp = doc.get("geocode")
                 data_point = (temp[0]['geometry']['location']['lat'], temp[0]['geometry']['location']['lng'])
+                if (temp != "" and temp != 1.0) and data_point == user_geocode:
+                    res.append(doc)
+            except:
+                continue
+
+    return res
+
+
+def find_hackathons_by_country(text, docs):
+    res = []
+    if len(docs) > 0:
+        user_geocode = get_geocode(text)
+
+        for doc in docs:
+            try:
+                temp = doc.get("country_geocode")
+                data_point = (temp[0]['geometry']['location']['lat'], temp[0]['geometry']['location']['lng'])
                 if (temp != "" and temp != 1.0) and is_point_near(user_geocode, data_point):
                     res.append(doc)
             except:
                 continue
 
-        return res
-    return False
+    return res
 
 
 def find_hackathons_by_type(text, docs):

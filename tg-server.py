@@ -33,24 +33,24 @@ def handle_start_help(message):
                    ['Upcoming Hackathons', 'Past Hackathons', 'All Hackathons']])
     bot.send_message(message.chat.id, 'Please choose the list you are interested in:', reply_markup=keyboard)
 
-    while True:
-        now = datetime.now()
-        if now.hour == 20 and now.minute == 00 and now.second == 0:
-            every_day(message)
+    # while True:
+    #     now = datetime.now()
+    #     if now.hour == 20 and now.minute == 00 and now.second == 0:
+    #         every_day(message)
 
 
 def output_message_after_search_process(res, chat, m):
     if res.__len__() != 0:
-        if res.__len__() > 10:
+        if res.__len__() > 5:
             i = 0
             t = []
             while i < res.__len__():
-                if i == 200:
+                if i == 20:
                     break
                 t.append(res[i])
-                if i % 10 == 0:
+                if i % 5 == 0:
                     bot.send_message(chat, helpers.form_message(t))
-                    time.sleep(1)
+                    time.sleep(0.5)
                     t = []
                 i += 1
         else:
@@ -154,8 +154,10 @@ def message_handler(m):
         output_message_after_search_process(res, m.chat.id, m)
         flags.title = False
     elif flags.location:
-        res = helpers.find_hackathons_by_location(m.text, res)
-        output_message_after_search_process(res, m.chat.id, m)
+        new_res = helpers.find_hackathons_by_country(m.text, res)
+        if new_res.__len__() == 0:
+            new_res = helpers.find_hackathons_by_location(m.text, res)
+        output_message_after_search_process(new_res, m.chat.id, m)
         flags.location = False
 
     else:
