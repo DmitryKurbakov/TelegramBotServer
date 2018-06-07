@@ -82,6 +82,6 @@ def find_hackathons_by_type(text, docs):
     for doc in docs:
         temp_list = doc.get('area')
         for temp in temp_list:
-            if text == temp or (text == 'economy' and temp == 'economy'):
+            if text.lower() == temp or (text.lower() == 'economics' and temp == 'economy'):
                 res.append(doc)
     return res
