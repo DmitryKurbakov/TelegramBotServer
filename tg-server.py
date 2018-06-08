@@ -30,8 +30,8 @@ def every_day(message):
 def handle_start_help(message):
     keyboard = types.InlineKeyboardMarkup()
     keyboard.add(*[types.InlineKeyboardButton(text=relevance, callback_data=relevance) for relevance in
-                   ['Upcoming Hackathons', 'Past Hackathons', 'All Hackathons']])
-    bot.send_message(message.chat.id, 'Please choose the list you are interested in:', reply_markup=keyboard)
+                   ['Upcoming', 'Past', 'All']])
+    bot.send_message(message.chat.id, 'Please choose the list of hackathon you are interested in:', reply_markup=keyboard)
 
     # while True:
     #     now = datetime.now()
@@ -63,26 +63,26 @@ def output_message_after_search_process(res, chat, m):
 @bot.callback_query_handler(func=lambda call: True)
 def set_searching_type(call):
     db_types = dbtools.get_hackathon_types()
-    if call.data == 'Upcoming Hackathons':
+    if call.data == 'Upcoming':
         flags.upcoming_hackathons = True
         keyboard = types.InlineKeyboardMarkup()
         keyboard.add(*[types.InlineKeyboardButton(text=functionality, callback_data=functionality) for functionality in
-                       ['Show hackathons', 'Search hackathons']])
+                       ['Show', 'Search']])
         bot.send_message(chat_id=call.message.chat.id, text="Please choose the following step:", reply_markup=keyboard)
-    elif call.data == 'Past Hackathons':
+    elif call.data == 'Past':
         flags.past_hackathons = True
         keyboard = types.InlineKeyboardMarkup()
         keyboard.add(*[types.InlineKeyboardButton(text=functionality, callback_data=functionality) for functionality in
-                       ['Show hackathons', 'Search hackathons']])
+                       ['Show', 'Search']])
         bot.send_message(chat_id=call.message.chat.id, text="Please choose the following step:", reply_markup=keyboard)
-    elif call.data == 'All Hackathons':
+    elif call.data == 'All':
         flags.all_hackathons = True
         keyboard = types.InlineKeyboardMarkup()
         keyboard.add(*[types.InlineKeyboardButton(text=functionality, callback_data=functionality) for functionality in
-                       ['Show hackathons', 'Search hackathons']])
+                       ['Show', 'Search']])
         bot.send_message(chat_id=call.message.chat.id, text="Please choose the following step:", reply_markup=keyboard)
 
-    elif call.data == 'Show hackathons':
+    elif call.data == 'Show':
         if flags.upcoming_hackathons:
             res = dbtools.get_hackathons_by_relevance(0)
             output_message_after_search_process(res, call.message.chat.id, call.message)
@@ -96,12 +96,12 @@ def set_searching_type(call):
             output_message_after_search_process(res, call.message.chat.id, call.message)
             flags.all_hackathons = False
 
-    elif call.data == 'Search hackathons':
+    elif call.data == 'Search':
         flags.search_hackathons = True
         keyboard = types.InlineKeyboardMarkup()
         keyboard.add(*[types.InlineKeyboardButton(text=search_by, callback_data=search_by) for search_by in
                        ['Title', 'Location', 'Type']])
-        bot.send_message(chat_id=call.message.chat.id, text="Search by ...", reply_markup=keyboard)
+        bot.send_message(chat_id=call.message.chat.id, text="Search by", reply_markup=keyboard)
 
     elif call.data == 'Title':
         flags.title = True
